@@ -1,7 +1,6 @@
 from dash import html, dcc
 import dash_bootstrap_components as dbc
 
-# Your mapping
 series = {
     "Harry Potter": [
         "Harry Potter and the Sorcerer's Stone",
@@ -21,226 +20,318 @@ series = {
         "The Horse and His Boy",
         "The Magician's Nephew",
         "The Last Battle",
-    ]
+    ],
 }
 
 navbar = dbc.Navbar(
-    dbc.Container([
-        dbc.NavbarBrand(
-            [
-                html.H2("Book Friend EDA", className="mb-0 fw-bold"),
-            ],
-            className="me-auto text-light"
-        ),
-        html.Span("Exploratory Dashboard", className="text-secondary fs-5"),
-    ]),
+    dbc.Container(
+        [
+            dbc.NavbarBrand(
+                [
+                    html.H2("Book Friend EDA", className="mb-0 fw-bold"),
+                ],
+                className="me-auto text-light",
+            ),
+            html.Span("Exploratory Dashboard", className="text-secondary fs-5"),
+        ]
+    ),
     color="dark",
     dark=True,
-    className="mb-4"
+    className="mb-4",
 )
 
 review_count_row = [
-    dbc.Row([
-        dbc.Col(
-            dbc.Card(
-                dbc.CardBody([
-                    html.H5("Reviews Counts", className="card-title text-center"),
-                    dcc.Graph(
-                        id="reviews-count-graph",
-                        config={"displayModeBar": False}
+    dbc.Row(
+        [
+            dbc.Col(
+                dbc.Card(
+                    dbc.CardBody(
+                        [
+                            html.H5(
+                                "Reviews Counts", className="card-title text-center"
+                            ),
+                            dcc.Graph(
+                                id="reviews-count-graph",
+                                config={"displayModeBar": False},
+                            ),
+                        ]
                     )
-                ])
-            ),
-            width=12
-        )
-    ], className="mb-3"),
-
+                ),
+                width=12,
+            )
+        ],
+        className="mb-3",
+    ),
     dcc.Interval(id="init-once", interval=0, n_intervals=0, max_intervals=1),
 ]
 
 author_genre_row = [
-    dbc.Row([
-        dbc.Col(
-            dbc.Card(
-                dbc.CardBody([
-                    html.H5("Top Authors by Count", className="card-title"),
-                    dcc.Slider(
-                        id="top-authors-slider",
-                        min=1,
-                        max=50,
-                        step=1,
-                        value=10,
-                        marks={i: str(i) for i in range(0, 51, 5)},
-                    ),
-                    dcc.Graph(id="top-authors-graph", config={"displayModeBar": False}),
-                ])
+    dbc.Row(
+        [
+            dbc.Col(
+                dbc.Card(
+                    dbc.CardBody(
+                        [
+                            html.H5("Top Authors by Count", className="card-title"),
+                            dcc.Slider(
+                                id="top-authors-slider",
+                                min=1,
+                                max=50,
+                                step=1,
+                                value=10,
+                                marks={i: str(i) for i in range(0, 51, 5)},
+                            ),
+                            dcc.Graph(
+                                id="top-authors-graph", config={"displayModeBar": False}
+                            ),
+                        ]
+                    )
+                ),
+                width=6,
             ),
-            width=6
-        ),
-        dbc.Col(
-            dbc.Card(
-                dbc.CardBody([
-                    html.H5("Top Genres by Count", className="card-title"),
-                    dcc.Slider(
-                        id="top-genres-slider",
-                        min=1,
-                        max=20,
-                        step=1,
-                        value=10,
-                        marks={i: str(i) for i in range(0, 21, 2)},
-                    ),
-                    dcc.Graph(id="top-genres-graph", config={"displayModeBar": False}),
-                ])
+            dbc.Col(
+                dbc.Card(
+                    dbc.CardBody(
+                        [
+                            html.H5("Top Genres by Count", className="card-title"),
+                            dcc.Slider(
+                                id="top-genres-slider",
+                                min=1,
+                                max=20,
+                                step=1,
+                                value=10,
+                                marks={i: str(i) for i in range(0, 21, 2)},
+                            ),
+                            dcc.Graph(
+                                id="top-genres-graph", config={"displayModeBar": False}
+                            ),
+                        ]
+                    )
+                ),
+                width=6,
             ),
-            width=6
-        ),
-    ], className="mb-3"),
+        ],
+        className="mb-3",
+    ),
 ]
 
 rating_sentiment_row = [
-    dbc.Row([
-        dbc.Col(
-            dbc.Card(
-                dbc.CardBody([
-                    html.H5("Top Books by Rating", className="card-title"),
-                    dcc.Slider(
-                        id="top-books-rating-slider",
-                        min=0, max=50, step=1, value=10,
-                        marks={i: str(i) for i in [0, 10, 20, 30, 40, 50]},
-                        tooltip={"always_visible": True}
-                    ),
-                    dcc.Graph(id="top-books-rating-graph", config={"displayModeBar": False}),
-                ])
+    dbc.Row(
+        [
+            dbc.Col(
+                dbc.Card(
+                    dbc.CardBody(
+                        [
+                            html.H5("Top Books by Rating", className="card-title"),
+                            dcc.Slider(
+                                id="top-books-rating-slider",
+                                min=0,
+                                max=50,
+                                step=1,
+                                value=10,
+                                marks={i: str(i) for i in [0, 10, 20, 30, 40, 50]},
+                                tooltip={"always_visible": True},
+                            ),
+                            dcc.Graph(
+                                id="top-books-rating-graph",
+                                config={"displayModeBar": False},
+                            ),
+                        ]
+                    )
+                ),
+                width=4,
             ),
-            width=4
-        ),
-        dbc.Col(
-            dbc.Card(
-                dbc.CardBody([
-                    html.H5("Top Books by Featured Rating", className="card-title"),
-                    dcc.Slider(
-                        id="top-books-featured-slider",
-                        min=0, max=50, step=1, value=10,
-                        marks={i: str(i) for i in [0, 10, 20, 30, 40, 50]},
-                        tooltip={"always_visible": True}
-                    ),
-                    dcc.Graph(id="top-books-featured-graph", config={"displayModeBar": False}),
-                ])
+            dbc.Col(
+                dbc.Card(
+                    dbc.CardBody(
+                        [
+                            html.H5(
+                                "Top Books by Featured Rating", className="card-title"
+                            ),
+                            dcc.Slider(
+                                id="top-books-featured-slider",
+                                min=0,
+                                max=50,
+                                step=1,
+                                value=10,
+                                marks={i: str(i) for i in [0, 10, 20, 30, 40, 50]},
+                                tooltip={"always_visible": True},
+                            ),
+                            dcc.Graph(
+                                id="top-books-featured-graph",
+                                config={"displayModeBar": False},
+                            ),
+                        ]
+                    )
+                ),
+                width=4,
             ),
-            width=4
-        ),
-        dbc.Col(
-            dbc.Card(
-                dbc.CardBody([
-                    html.H5("Top Books by Sentiment Score", className="card-title"),
-                    dcc.Slider(
-                        id="top-books-sentiment-slider",
-                        min=0, max=50, step=1, value=10,
-                        marks={i: str(i) for i in [0, 10, 20, 30, 40, 50]},
-                        tooltip={"always_visible": True}
-                    ),
-                    dcc.Graph(id="top-books-sentiment-graph", config={"displayModeBar": False}),
-                ])
+            dbc.Col(
+                dbc.Card(
+                    dbc.CardBody(
+                        [
+                            html.H5(
+                                "Top Books by Sentiment Score", className="card-title"
+                            ),
+                            dcc.Slider(
+                                id="top-books-sentiment-slider",
+                                min=0,
+                                max=50,
+                                step=1,
+                                value=10,
+                                marks={i: str(i) for i in [0, 10, 20, 30, 40, 50]},
+                                tooltip={"always_visible": True},
+                            ),
+                            dcc.Graph(
+                                id="top-books-sentiment-graph",
+                                config={"displayModeBar": False},
+                            ),
+                        ]
+                    )
+                ),
+                width=4,
             ),
-            width=4
-        ),
-    ], className="mb-3"),
+        ],
+        className="mb-3",
+    ),
 ]
 
 rating_row = [
-    dbc.Row([
-        # Left: Top 50 list (scrollable)
-        dbc.Col(
-            dbc.Card(
-                dbc.CardBody([
-                    html.H5("Top 50 Books by Rating", className="card-title"),
-                    html.Div(
-                        dbc.ListGroup(id="top50-rating-list", flush=True),
-                        style={"maxHeight": "58vh", "overflowY": "auto"}  # scroll inside
+    dbc.Row(
+        [
+            # Left: Top 50 list (scrollable)
+            dbc.Col(
+                dbc.Card(
+                    dbc.CardBody(
+                        [
+                            html.H5("Top 50 Books by Rating", className="card-title"),
+                            html.Div(
+                                dbc.ListGroup(id="top50-rating-list", flush=True),
+                                style={
+                                    "maxHeight": "58vh",
+                                    "overflowY": "auto",
+                                },  # scroll inside
+                            ),
+                        ]
                     ),
-                ]),
-                style={"height": "70vh"}  # fixed height
+                    style={"height": "70vh"},  # fixed height
+                ),
+                width=5,
             ),
-            width=5
-        ),
-
-        # Right: Top 10 graph
-        dbc.Col(
-            dbc.Card(
-                dbc.CardBody([
-                    html.H5("Top 10 Books by Rating", className="card-title"),
-                    dcc.Graph(id="top10-rating-graph", config={"displayModeBar": False},
-                              style={"height": "60vh"})  # fill available height inside card
-                ]),
-                style={"height": "70vh"}  # fixed height
+            # Right: Top 10 graph
+            dbc.Col(
+                dbc.Card(
+                    dbc.CardBody(
+                        [
+                            html.H5("Top 10 Books by Rating", className="card-title"),
+                            dcc.Graph(
+                                id="top10-rating-graph",
+                                config={"displayModeBar": False},
+                                style={"height": "60vh"},
+                            ),  # fill available height inside card
+                        ]
+                    ),
+                    style={"height": "70vh"},  # fixed height
+                ),
+                width=7,
             ),
-            width=7
-        ),
-    ], className="mb-3"),
+        ],
+        className="mb-3",
+    ),
 ]
 
 featured_rating_row = [
-    dbc.Row([
-        # Left: Top 50 list
-        dbc.Col(
-            dbc.Card(
-                dbc.CardBody([
-                    html.H5("Top 50 Books by Featured Rating", className="card-title"),
-                    html.Div(
-                        dbc.ListGroup(id="top50-featured-list", flush=True),
-                        style={"maxHeight": "58vh", "overflowY": "auto"}
+    dbc.Row(
+        [
+            # Left: Top 50 list
+            dbc.Col(
+                dbc.Card(
+                    dbc.CardBody(
+                        [
+                            html.H5(
+                                "Top 50 Books by Featured Rating",
+                                className="card-title",
+                            ),
+                            html.Div(
+                                dbc.ListGroup(id="top50-featured-list", flush=True),
+                                style={"maxHeight": "58vh", "overflowY": "auto"},
+                            ),
+                        ]
                     ),
-                ]),
-                style={"height": "70vh"}
+                    style={"height": "70vh"},
+                ),
+                width=5,
             ),
-            width=5
-        ),
-
-        # Right: Top 10 graph
-        dbc.Col(
-            dbc.Card(
-                dbc.CardBody([
-                    html.H5("Top 10 Books by Featured Rating", className="card-title"),
-                    dcc.Graph(id="top10-featured-graph", config={"displayModeBar": False},
-                              style={"height": "60vh"})
-                ]),
-                style={"height": "70vh"}
+            # Right: Top 10 graph
+            dbc.Col(
+                dbc.Card(
+                    dbc.CardBody(
+                        [
+                            html.H5(
+                                "Top 10 Books by Featured Rating",
+                                className="card-title",
+                            ),
+                            dcc.Graph(
+                                id="top10-featured-graph",
+                                config={"displayModeBar": False},
+                                style={"height": "60vh"},
+                            ),
+                        ]
+                    ),
+                    style={"height": "70vh"},
+                ),
+                width=7,
             ),
-            width=7
-        ),
-    ], className="mb-3"),
+        ],
+        className="mb-3",
+    ),
 ]
 
 sentiment_score_row = [
-    dbc.Row([
-        # Left: Top 50 list
-        dbc.Col(
-            dbc.Card(
-                dbc.CardBody([
-                    html.H5("Top 50 Books by Sentiment Score", className="card-title"),
-                    html.Div(
-                        dbc.ListGroup(id="top50-sentiment-list", flush=True),
-                        style={"maxHeight": "58vh", "overflowY": "auto"}
+    dbc.Row(
+        [
+            # Left: Top 50 list
+            dbc.Col(
+                dbc.Card(
+                    dbc.CardBody(
+                        [
+                            html.H5(
+                                "Top 50 Books by Sentiment Score",
+                                className="card-title",
+                            ),
+                            html.Div(
+                                dbc.ListGroup(id="top50-sentiment-list", flush=True),
+                                style={"maxHeight": "58vh", "overflowY": "auto"},
+                            ),
+                        ]
                     ),
-                ]),
-                style={"height": "70vh"}
+                    style={"height": "70vh"},
+                ),
+                width=5,
             ),
-            width=5
-        ),
-
-        # Right: Top 10 graph
-        dbc.Col(
-            dbc.Card(
-                dbc.CardBody([
-                    html.H5("Top 10 Books by Sentiment Score", className="card-title"),
-                    dcc.Graph(id="top10-sentiment-graph", config={"displayModeBar": False},
-                              style={"height": "60vh"})
-                ]),
-                style={"height": "70vh"}
+            # Right: Top 10 graph
+            dbc.Col(
+                dbc.Card(
+                    dbc.CardBody(
+                        [
+                            html.H5(
+                                "Top 10 Books by Sentiment Score",
+                                className="card-title",
+                            ),
+                            dcc.Graph(
+                                id="top10-sentiment-graph",
+                                config={"displayModeBar": False},
+                                style={"height": "60vh"},
+                            ),
+                        ]
+                    ),
+                    style={"height": "70vh"},
+                ),
+                width=7,
             ),
-            width=7
-        ),
-    ], className="mb-3"),
+        ],
+        className="mb-3",
+    ),
 ]
 
 distribution_row = [
@@ -254,7 +345,7 @@ distribution_row = [
                             dcc.Graph(
                                 id="rating-dist-hist",
                                 config={"displayModeBar": False},
-                                style={"height": 300}
+                                style={"height": 300},
                             )
                         ),
                     ],
@@ -270,7 +361,7 @@ distribution_row = [
                             dcc.Graph(
                                 id="featured-rating-dist-hist",
                                 config={"displayModeBar": False},
-                                style={"height": 300}
+                                style={"height": 300},
                             )
                         ),
                     ],
@@ -286,7 +377,7 @@ distribution_row = [
                             dcc.Graph(
                                 id="sentiment-dist-hist",
                                 config={"displayModeBar": False},
-                                style={"height": 300}
+                                style={"height": 300},
                             )
                         ),
                     ],
@@ -299,9 +390,7 @@ distribution_row = [
     )
 ]
 
-# -------------------------
-# Controls (row-level)
-# -------------------------
+# --- Compare Controls ---
 controls = [
     dbc.Card(
         [
@@ -316,8 +405,14 @@ controls = [
                                     id="metric-x",
                                     options=[
                                         {"label": "rating", "value": "rating"},
-                                        {"label": "featured_rating", "value": "featured_rating"},
-                                        {"label": "sentiment_score", "value": "sentiment_score"},
+                                        {
+                                            "label": "featured_rating",
+                                            "value": "featured_rating",
+                                        },
+                                        {
+                                            "label": "sentiment_score",
+                                            "value": "sentiment_score",
+                                        },
                                     ],
                                     value="rating",
                                     clearable=False,
@@ -332,8 +427,14 @@ controls = [
                                     id="metric-y",
                                     options=[
                                         {"label": "rating", "value": "rating"},
-                                        {"label": "featured_rating", "value": "featured_rating"},
-                                        {"label": "sentiment_score", "value": "sentiment_score"},
+                                        {
+                                            "label": "featured_rating",
+                                            "value": "featured_rating",
+                                        },
+                                        {
+                                            "label": "sentiment_score",
+                                            "value": "sentiment_score",
+                                        },
                                     ],
                                     value="featured_rating",
                                     clearable=False,
@@ -350,9 +451,7 @@ controls = [
     )
 ]
 
-# -------------------------
-# Row of two analysis cards
-# -------------------------
+# --- Compare Row ---
 compare_row = [
     dbc.Row(
         [
@@ -393,8 +492,7 @@ compare_row = [
     )
 ]
 
-##### top
-
+# --- Top Metrics Row ---
 top_metrics_row = dbc.Row(
     [
         # Left: Top 50 list
@@ -410,8 +508,14 @@ top_metrics_row = dbc.Row(
                                         id="metric-select",
                                         options=[
                                             {"label": "rating", "value": "rating"},
-                                            {"label": "featured_rating", "value": "featured_rating"},
-                                            {"label": "sentiment_score", "value": "sentiment_score"},
+                                            {
+                                                "label": "featured_rating",
+                                                "value": "featured_rating",
+                                            },
+                                            {
+                                                "label": "sentiment_score",
+                                                "value": "sentiment_score",
+                                            },
                                         ],
                                         value="rating",
                                         clearable=False,
@@ -434,7 +538,6 @@ top_metrics_row = dbc.Row(
             ),
             width=5,
         ),
-
         # Right: Top 10 graph
         dbc.Col(
             dbc.Card(
@@ -456,9 +559,7 @@ top_metrics_row = dbc.Row(
     className="mb-4",  # margin before next row
 )
 
-# -------------------------
-# Layout: Series Analysis row
-# -------------------------
+# --- Series Analysis Row ---
 series_row = dbc.Row(
     [
         dbc.Col(
@@ -467,11 +568,16 @@ series_row = dbc.Row(
                     dbc.CardHeader(
                         dbc.Row(
                             [
-                                dbc.Col(html.H5("Series Analysis", className="mb-0"), md=8),
+                                dbc.Col(
+                                    html.H5("Series Analysis", className="mb-0"), md=8
+                                ),
                                 dbc.Col(
                                     dcc.Dropdown(
                                         id="series-select",
-                                        options=[{"label": k, "value": k} for k in series.keys()],
+                                        options=[
+                                            {"label": k, "value": k}
+                                            for k in series.keys()
+                                        ],
                                         value="Harry Potter",
                                         clearable=False,
                                     ),

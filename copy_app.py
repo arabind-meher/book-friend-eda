@@ -12,7 +12,7 @@ books_df = db.get_books()
 recs_df = db.get_recommendations()
 
 num_authors = books_df["author"].nunique()
-num_genres = books_df['genres'].explode().nunique()
+num_genres = books_df["genres"].explode().nunique()
 
 # -------------------------
 # Dash app (with Bootstrap theme)
@@ -35,7 +35,6 @@ app.layout = html.Div(
             dark=True,
             className="mb-4",
         ),
-
         # Main content
         dbc.Container(
             [
@@ -48,8 +47,12 @@ app.layout = html.Div(
                                     id="author-count",
                                     min=1,
                                     max=max(1, int(num_authors)),
-                                    value=min(10, int(num_authors)) if num_authors else 1,
-                                    marks={i: str(i) for i in range(1, num_authors + 1, 10)},
+                                    value=(
+                                        min(10, int(num_authors)) if num_authors else 1
+                                    ),
+                                    marks={
+                                        i: str(i) for i in range(1, num_authors + 1, 10)
+                                    },
                                     step=1,
                                 ),
                                 html.H5("Authors", className="text-center mt-1"),
@@ -69,7 +72,9 @@ app.layout = html.Div(
                                     min=1,
                                     max=max(1, int(num_genres)),
                                     value=min(10, int(num_genres)) if num_genres else 1,
-                                    marks={i: str(i) for i in range(1, num_genres + 1, 10)},
+                                    marks={
+                                        i: str(i) for i in range(1, num_genres + 1, 10)
+                                    },
                                     step=1,
                                 ),
                                 dcc.Graph(
@@ -94,13 +99,14 @@ app.layout = html.Div(
 # Callback
 # -------------------------
 
+
 # --- authors ---
 @app.callback(
     Output("author-graph", "figure"),
     Input("author-count", "value"),
 )
 def update_author_graph(top_n):
-    top = books_df['author'].value_counts().head(int(top_n or 10)).reset_index()
+    top = books_df["author"].value_counts().head(int(top_n or 10)).reset_index()
     top.columns = ["author", "count"]
 
     if top.empty:
@@ -121,7 +127,9 @@ def update_author_graph(top_n):
     Input("genre-count", "value"),
 )
 def update_genre_graph(top_n):
-    top = books_df['genres'].explode().value_counts().head(int(top_n or 10)).reset_index()
+    top = (
+        books_df["genres"].explode().value_counts().head(int(top_n or 10)).reset_index()
+    )
     top.columns = ["genre", "count"]
 
     if top.empty:

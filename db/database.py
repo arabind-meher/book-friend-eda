@@ -21,16 +21,27 @@ class Database:
         book_media_types = self.get_table("book_media_types")
 
         # Join book_genres -> genres
-        bg = book_genres.merge(genres, left_on="genre_id", right_on="id", how="left") \
-            .groupby("book_id")["name"].apply(list).reset_index(name="genres")
+        bg = (
+            book_genres.merge(genres, left_on="genre_id", right_on="id", how="left")
+            .groupby("book_id")["name"]
+            .apply(list)
+            .reset_index(name="genres")
+        )
 
         # Join book_media_types -> media_types
-        bm = book_media_types.merge(media_types, left_on="media_type_id", right_on="id", how="left") \
-            .groupby("book_id")["name"].apply(list).reset_index(name="media_types")
+        bm = (
+            book_media_types.merge(
+                media_types, left_on="media_type_id", right_on="id", how="left"
+            )
+            .groupby("book_id")["name"]
+            .apply(list)
+            .reset_index(name="media_types")
+        )
 
         # Merge into books
-        df = books.merge(bg, left_on="id", right_on="book_id", how="left") \
-            .merge(bm, left_on="id", right_on="book_id", how="left")
+        df = books.merge(bg, left_on="id", right_on="book_id", how="left").merge(
+            bm, left_on="id", right_on="book_id", how="left"
+        )
 
         # Clean up extra join columns
         df = df.drop(columns=["book_id_x", "book_id_y"], errors="ignore")
@@ -39,4 +50,3 @@ class Database:
 
     def get_recommendations(self) -> pd.DataFrame:
         return self.get_table("book_recs")
-

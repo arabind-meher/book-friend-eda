@@ -1,4 +1,3 @@
-# app.py
 import numpy as np
 import pandas as pd
 import plotly.express as px
@@ -8,8 +7,16 @@ from dash import Dash, html, dcc, Input, Output
 import dash_bootstrap_components as dbc
 
 from db import Database
-from dash_layout import navbar, review_count_row, author_genre_row, distribution_row, controls, compare_row, \
-    top_metrics_row, series_row
+from dash_layout import (
+    navbar,
+    review_count_row,
+    author_genre_row,
+    distribution_row,
+    controls,
+    compare_row,
+    top_metrics_row,
+    series_row,
+)
 from figures import make_reviews_counts_fig, make_top_authors_fig, make_top_genres_fig
 
 # --------------------------------------------------
@@ -20,7 +27,6 @@ db = Database()
 books_df = db.get_books()
 recs_df = db.get_recommendations()
 
-# Your mapping
 series = {
     "Harry Potter": [
         "Harry Potter and the Sorcerer's Stone",
@@ -40,93 +46,49 @@ series = {
         "The Horse and His Boy",
         "The Magician's Nephew",
         "The Last Battle",
-    ]
+    ],
 }
 
 # --------------------------------------------------
 
-app = Dash(
-    __name__,
-    external_stylesheets=[dbc.themes.BOOTSTRAP]  # pick any Bootswatch theme if you like
-)
+app = Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
 server = app.server
-
-
-def card(title):
-    return dbc.Card(
-        dbc.CardBody([
-            html.H5(title, className="card-title")
-        ])
-    )
 
 
 # --------------------------------------------------
 # Layout
 # --------------------------------------------------
 
-app.layout = dbc.Container(fluid=True, children=[
-
-    # Row 1: Navbar / Header (div1)
-    navbar,
-
-    # Row 2: Reviews Counts (div2)
-    *review_count_row,
-
-    # Row 3: Top Authors / Top Genres (div3, div4)
-    *author_genre_row,
-
-    # Row 4: Top Books by Rating / Featured / Sentiment (div5, div6, div7)
-    # dbc.Row([
-    #     dbc.Col(card("Top Books by Rating"), width=4),
-    #     dbc.Col(card("Top Books by Featured Rating"), width=4),
-    #     dbc.Col(card("Top Books by Sentiment Score"), width=4),
-    # ], className="mb-3"),
-    # *rating_row,
-    # *featured_rating_row,
-    # *sentiment_score_row,
-    top_metrics_row,
-
-    # Row 5: Distributions (div8, div9, div10)
-    # dbc.Row([
-    #     dbc.Col(card("Distribution of Rating"), width=4),
-    #     dbc.Col(card("Distribution of Featured Rating"), width=4),
-    #     dbc.Col(card("Distribution of Sentiment Score"), width=4),
-    # ], className="mb-3"),
-    *distribution_row,
-
-    # Row 6: Rating vs Rating (div11, div12)
-    # dbc.Row([
-    #     dbc.Col(card("Rating vs Rating"), width=6),
-    #     dbc.Col(card("Rating vs Rating"), width=6),
-    # ], className="mb-3"),
-    *controls,
-    *compare_row,
-
-    # Row 7: Series Analysis (div13)
-    # dbc.Row([
-    #     dbc.Col(card("Series Analysis"), width=12),
-    # ]),
-    series_row
-])
+app.layout = dbc.Container(
+    fluid=True,
+    children=[
+        navbar,
+        *review_count_row,
+        *author_genre_row,
+        top_metrics_row,
+        *distribution_row,
+        *controls,
+        *compare_row,
+        series_row,
+    ],
+)
 
 
 @app.callback(
-    Output("reviews-count-graph", "figure"),
-    Input("init-once", "n_intervals"))
+    Output("reviews-count-graph", "figure"), Input("init-once", "n_intervals")
+)
 def build_reviews_counts(_):
     return make_reviews_counts_fig(books_df)
 
 
 @app.callback(
-    Output("top-authors-graph", "figure"),
-    Input("top-authors-slider", "value"))
+    Output("top-authors-graph", "figure"), Input("top-authors-slider", "value")
+)
 def build_top_authors(n):
     return make_top_authors_fig(books_df, n)
 
 
-@app.callback(
-    Output("top-genres-graph", "figure"),
-    Input("top-genres-slider", "value"))
+@app.callback(Output("top-genres-graph", "figure"), Input("top-genres-slider", "value"))
 def build_top_genres(n):
     return make_top_genres_fig(books_df, n)
 
@@ -149,7 +111,6 @@ def _pretty(col: str) -> str:
     prevent_initial_call=False,
 )
 def update_top_metrics(metric_col):
-    # default & guard
     if metric_col not in {"rating", "featured_rating", "sentiment_score"}:
         metric_col = "rating"
 
@@ -163,7 +124,6 @@ def update_top_metrics(metric_col):
 
     pretty = _pretty(metric_col)
 
-    # -------- Top 50 list --------
     top50 = df.sort_values(by=metric_col, ascending=False).head(50)
     list_items = []
     for i, row in enumerate(top50.itertuples(index=False), start=1):
@@ -173,8 +133,11 @@ def update_top_metrics(metric_col):
                     [
                         dbc.Col(html.Span(f"{i:02d}"), width=2),
                         dbc.Col(html.Span(getattr(row, "title")), width=8),
-                        dbc.Col(html.Span(f"{getattr(row, metric_col):.2f}"),
-                                width=2, className="text-end"),
+                        dbc.Col(
+                            html.Span(f"{getattr(row, metric_col):.2f}"),
+                            width=2,
+                            className="text-end",
+                        ),
                     ],
                     align="center",
                     className="g-0",
@@ -182,23 +145,21 @@ def update_top_metrics(metric_col):
             )
         )
 
-    # -------- Top 10 horizontal bar --------
-    # Top 10 Books by {pretty}
-    top10 = top50.head(10).iloc[::-1]  # highest on top
+    top10 = top50.head(10).iloc[::-1]  # highest at top
     fig = px.bar(
         top10,
         x=metric_col,
         y="title",
         orientation="h",
-        text=top10[metric_col].round(2),  # text values
+        text=top10[metric_col].round(2),
         title="",
     )
 
     fig.update_traces(
         texttemplate="%{text:.2f}",
-        textposition="inside",  # << move labels inside the bars
+        textposition="inside",
         insidetextanchor="middle",
-        textfont=dict(color="white"),  # better contrast inside bars
+        textfont=dict(color="white"),
         cliponaxis=False,
         hovertemplate=f"{pretty}: %{{x:.2f}}<extra></extra>",
     )
@@ -209,7 +170,7 @@ def update_top_metrics(metric_col):
         xaxis_title=pretty,
         yaxis_title=None,
         showlegend=False,
-        uniformtext_minsize=10,  # hide text if bar too small
+        uniformtext_minsize=10,
         uniformtext_mode="hide",
     )
     fig.update_xaxes(range=[0, 5])
@@ -221,15 +182,12 @@ def update_top_metrics(metric_col):
     )
 
 
-# ---------- Shared figure builder (replicates your Matplotlib look) ----------
 def build_hist_figure(df, col, bin_edges, title, y_max=150):
     s = df[col].dropna()
     counts, edges = np.histogram(s, bins=bin_edges)
-    # Bar at bin centers
     centers = (edges[:-1] + edges[1:]) / 2.0
     widths = np.diff(edges)
 
-    # Summary stats
     min_val = float(s.min()) if len(s) else None
     median_val = float(s.median()) if len(s) else None
     mean_val = float(s.mean()) if len(s) else None
@@ -237,7 +195,6 @@ def build_hist_figure(df, col, bin_edges, title, y_max=150):
 
     fig = go.Figure()
 
-    # Histogram as bars with count labels on top (outside)
     fig.add_bar(
         x=centers,
         y=counts,
@@ -269,7 +226,6 @@ def build_hist_figure(df, col, bin_edges, title, y_max=150):
     add_vline_line(mean_val, "Mean", "dash", "green")
     add_vline_line(max_val, "Max", "dash", "red")
 
-    # Axes & layout to match your style
     fig.update_layout(
         title=title,
         xaxis_title="Rating",
@@ -286,14 +242,6 @@ def build_hist_figure(df, col, bin_edges, title, y_max=150):
     return fig
 
 
-# ---------- Layout snippet (unchanged structure; just ensure these IDs exist) ----------
-# dcc.Graph ids used below:
-#   rating-dist-hist
-#   featured-rating-dist-hist
-#   sentiment-dist-hist
-# Distribution of <value>
-
-# ---------- Callbacks ----------
 @app.callback(
     Output("rating-dist-hist", "figure"),
     Input("rating-dist-hist", "id"),
@@ -301,9 +249,7 @@ def build_hist_figure(df, col, bin_edges, title, y_max=150):
 )
 def update_rating_hist(_):
     bins = np.arange(0, 5.5, 0.5)
-    return build_hist_figure(
-        books_df, "rating", bins, "", y_max=150
-    )
+    return build_hist_figure(books_df, "rating", bins, "", y_max=150)
 
 
 @app.callback(
@@ -313,9 +259,7 @@ def update_rating_hist(_):
 )
 def update_featured_rating_hist(_):
     bins = np.arange(0, 5.5, 0.5)
-    return build_hist_figure(
-        books_df, "featured_rating", bins, "", y_max=150
-    )
+    return build_hist_figure(books_df, "featured_rating", bins, "", y_max=150)
 
 
 @app.callback(
@@ -325,9 +269,7 @@ def update_featured_rating_hist(_):
 )
 def update_sentiment_hist(_):
     bins = np.arange(0, 5.5, 0.5)  # sentiment_score in [0, 5]
-    fig = build_hist_figure(
-        books_df, "sentiment_score", bins, "", y_max=150
-    )
+    fig = build_hist_figure(books_df, "sentiment_score", bins, "", y_max=150)
     fig.update_layout(xaxis_title="Sentiment Score")
     return fig
 
@@ -346,25 +288,24 @@ def _coerce_and_clip01(df, cols):
     prevent_initial_call=False,
 )
 def update_compare_plots(col_x, col_y):
-    # --------- Prep ---------
     if col_x is None or col_y is None:
         col_x, col_y = "rating", "featured_rating"
 
     df = _coerce_and_clip01(books_df, [col_x, col_y])
     if df.empty:
-        # empty figs fallback
         return go.Figure(), go.Figure()
 
     x_vals = df[col_x].values
     y_vals = df[col_y].values
     diff = y_vals - x_vals
 
-    # --------- Bar: Y - X across books (sorted by diff) ---------
-    order = np.argsort(diff)  # ascending
+    order = np.argsort(diff)
     diff_sorted = diff[order]
 
     # Colors: red (<0), green (>0), blue (=0)
-    colors = np.where(diff_sorted < 0, "red", np.where(diff_sorted > 0, "green", "blue"))
+    colors = np.where(
+        diff_sorted < 0, "red", np.where(diff_sorted > 0, "green", "blue")
+    )
 
     fig_bar = go.Figure()
     fig_bar.add_bar(
@@ -383,10 +324,8 @@ def update_compare_plots(col_x, col_y):
         height=350,
     )
 
-    # --------- Scatter: Y vs X with y=x, RMSE, Pearson r ---------
-    # RMSE
     rmse = float(np.sqrt(np.mean((y_vals - x_vals) ** 2)))
-    # Pearson r (safe for constant arrays)
+    # guard against std=0 for constant arrays
     if np.std(x_vals) > 0 and np.std(y_vals) > 0:
         corr = float(np.corrcoef(x_vals, y_vals)[0, 1])
     else:
@@ -402,7 +341,6 @@ def update_compare_plots(col_x, col_y):
             hovertemplate=f"{col_x}: %{{x:.3f}}<br>{col_y}: %{{y:.3f}}<extra></extra>",
         )
     )
-    # y = x reference line
     fig_scatter.add_trace(
         go.Scatter(
             x=[0, 5],
@@ -413,12 +351,24 @@ def update_compare_plots(col_x, col_y):
             hoverinfo="skip",
         )
     )
-    # Annotations for RMSE and r (top-left area)
-    fig_scatter.add_annotation(x=0.5, y=4.2, xref="x", yref="y", showarrow=False,
-                               text=f"RMSE = {rmse:.3f}", font=dict(size=12))
-    fig_scatter.add_annotation(x=0.5, y=3.8, xref="x", yref="y", showarrow=False,
-                               text=f"Pearson r = {corr:.3f}" if np.isfinite(corr) else "Pearson r = N/A",
-                               font=dict(size=12))
+    fig_scatter.add_annotation(
+        x=0.5,
+        y=4.2,
+        xref="x",
+        yref="y",
+        showarrow=False,
+        text=f"RMSE = {rmse:.3f}",
+        font=dict(size=12),
+    )
+    fig_scatter.add_annotation(
+        x=0.5,
+        y=3.8,
+        xref="x",
+        yref="y",
+        showarrow=False,
+        text=f"Pearson r = {corr:.3f}" if np.isfinite(corr) else "Pearson r = N/A",
+        font=dict(size=12),
+    )
 
     fig_scatter.update_layout(
         title=f"{col_x} (X) vs {col_y} (Y)",
@@ -435,19 +385,15 @@ def update_compare_plots(col_x, col_y):
 
 
 def _norm(s: pd.Series) -> pd.Series:
-    # simple normalization for case-insensitive title matching
     return s.astype(str).str.strip().str.lower()
 
 
 def _ensure_year(df: pd.DataFrame) -> str:
-    # Prefer an existing 'year' column; fallback to 'start_date' if present
+    # falls back to parsing start_date if a year column isn't already present
     if "year" in df.columns:
         return "year"
     if "start_date" in df.columns:
-        tmp = df.copy()
-        tmp["year"] = pd.to_datetime(tmp["start_date"], errors="coerce").dt.year
         return "year"
-    # If neither exists, raise clearly
     raise KeyError("No 'year' (or 'start_date') column found in books_df")
 
 
@@ -457,7 +403,6 @@ def _ensure_year(df: pd.DataFrame) -> str:
     prevent_initial_call=False,
 )
 def update_series_trend(selected_series):
-    # Guard
     if selected_series not in series:
         selected_series = list(series.keys())[0]
 
@@ -466,29 +411,26 @@ def update_series_trend(selected_series):
 
     df = books_df.copy()
 
-    # Determine year column
     year_col = _ensure_year(df)
     if year_col != "year" and "year" not in df.columns:
-        # convert if we only detected start_date available
         df["year"] = pd.to_datetime(df["start_date"], errors="coerce").dt.year
         year_col = "year"
 
-    # Filter to titles in the chosen series (case-insensitive)
     df["title_norm"] = _norm(df["title"])
     sub = df[df["title_norm"].isin(titles_norm)].copy()
 
-    # Keep only needed columns and numeric metrics; clip to [0,5]
     for c in ["rating", "featured_rating", "sentiment_score"]:
         sub[c] = pd.to_numeric(sub[c], errors="coerce").clip(lower=0, upper=5)
 
     # Aggregate by year (mean in case multiple books per year)
     agg = (
-        sub.groupby(year_col, as_index=False)[["rating", "featured_rating", "sentiment_score"]]
+        sub.groupby(year_col, as_index=False)[
+            ["rating", "featured_rating", "sentiment_score"]
+        ]
         .mean()
         .sort_values(year_col)
     )
 
-    # Build line chart
     fig = go.Figure()
     traces = [
         ("rating", "Rating"),
@@ -507,7 +449,6 @@ def update_series_trend(selected_series):
                 )
             )
 
-    # Trend of Scores over Years — {selected_series}
     fig.update_layout(
         title="",
         xaxis_title="Year of Release",
@@ -516,7 +457,6 @@ def update_series_trend(selected_series):
         height=600,
         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="left", x=0),
     )
-    # Consistent score axis
     fig.update_yaxes(range=[0, 5])
 
     # If there are few points, widen the x range slightly for padding
